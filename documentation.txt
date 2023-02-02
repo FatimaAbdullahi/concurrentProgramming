@@ -1,0 +1,75 @@
+
+
+lab1
+
+--Q1: placement of the sensors
+
+When choosing the placement for our sensors we needed to make sure that the sensors and the switches were not too close to one another. If the sensors were too close to the switches then we would end up with a command exception. This is due to the train not fully getting of the switch before trying to revert the switch to its default direction.This was solved by reasonably seperating the sensors and the switches so that the train had ample amount of space before changing switch direction.
+
+--sensors at intersection
+We have four sensors around the intersection that we use to make sure that only one train at a time passes the intersection no matter which direction they came from using a intersection permit. Since there are four different directions around the intersection we have four sensors for all directions, horizontally east or west, vertically north or south. When the train passes the intersection and goes by the sensor at the opposite end, the intersection permit is released and another train can then move by. (screenshot: intersection has blue x mark)
+
+--sensors at station
+The sensors at the stations are responsible for making the train wait at the station and also gives permits that indicates which station railway the train is initially on when leaving the station, upper or bottom railway. (screenshot:all upper railways have a red x mark) 
+
+
+--sensors near switches
+For every upper and bottom railway connected to each switch we have placed sensors, we have also placed sensors at the single railways connected to each switch. One important thing to note is that when a train is moving between two switches that only have one single railway between them (e.g. the single railway between switch 17 and 15, red cicrled areas in screenshot), then the train needs to have the permit for both of the switches connected to that single railway track before accessing it. For example in order for the train to access the single railway track between switch 17 and 15 then the train needs to wait until it has been granted the permits trackSwitch17 and trackSwitch15 which control switch 17 and 15. This algorithm is also applied to the single track between switch 3 and 4. 
+
+Another thing to note is that when a train tries to get the permit of a switch and the train is headed to the switches upper or bottom railway track, then the train needs to see which of these two tracks are available before moving past the switch. It does this by trying to acquire the permit for the switches upper track, if it fails it is automatically assigned the bottom track. For example, the train wants to acquire the permit for switch 4(trackSwitch4) and is headed towards the north(train came from southstation). There is a single railway between switch 4 and 3 so the train needs to first acquire the permits for both switch 4 and 3 and because switch 4 has two railways to choose from when coming from the north, the train tries to choose between the two paths using the method chooseBetweenTwoPaths(). If the permit for the upper railway connected to switch 4 is available(middleUp permit) then train is assigned upper railway otherwise bottom railway. The general method for the sensors that control the switches are as follows:
+      
+      --relevant methods for sensors near switches--
+--chooseBetweenTwoPaths() - acquires switch permit and tries to acquire permit  for upper railway connected to switch, if it cant then switch makes train go to the bottom railway connected to the switch
+--chooseOnePath() - acquires switch permit and switches direction of switch so that train can go on single railway connected to switch
+--releasePermit()-- releases permit and removes permit from list of premitsGranted
+--acquirePermit()-- acquires permit and adds permit to permitsGranted
+middleUp--permit for middle upper railway
+trackSwitch3Up--permit for upper railway at southstation
+trackSwitch17Up- permit for upper railway at northstation
+trackSwitchA  - permit for switch A where A = 15,17,4 or 3
+screenshot: sensors that control switch 17 and 15 are circled yellow
+screenshot: sensors that control switch 3 and 4 are cricled green
+
+     --routine for sensors on switch 4 upper, bottom and single railway--
+
+single railway->    north:release permit middleUp if in permits granted
+upper/bottom ->     north:acquire permits trackSwitch4 and 3 and trackSwitch3Up 
+                    if available
+                    south:release permits trackSwitch4 & 3
+                   		  
+ 
+     --routine for sensors on switch 3 upper, bottom and single railway--
+
+single railway->    south:release permit trackSwitch3Up if in permits granted
+upper/bottom ->     north:release permits trackSwitch4 and 3
+                    south:acquire permits trackSwitch4 & 3 and middleUp if available
+                    
+     --routine for sensors on switch 15 upper, bottom and single railway--
+
+single railway->    south:release permit middleUp if in permits granted
+upper/bottom ->     north:release permits trackSwitch15 and 17
+                    south:acquire permits trackSwitch15 & 17 and trackSwitch17Up 
+                    if available
+                    
+     --routine for sensors on switch 17 upper, bottom and single railway--
+
+single railway->    north:release permit trackSwitch17Up if in permits granted
+upper/bottom ->     north:acquire permits trackSwitch15 and 17 and middleUp
+                    if available
+                    south:release permits trackSwitch15 & 17
+
+
+--Q2: critical sections
+parts circled red in screenshot
+
+
+--Q3: maximum train speed
+We chose 15 mls as an approriate velocity since it provided us with all the scenarios that we needed to know if the program worked. It also seemed reasonable and met the requirements for an approriate maxSpeed as described by the lab description
+
+
+--Q4: testing
+We tested the program by first moving each train separatly to see that the permits and switch directions were configured correctly for each direction, north and south. We then tested both trains together to see that the permits were interchanged between the two trains correctly so that the trains did not end up on the same railway at the same time. We then tested varying speeds for the trains to see if everything worked.
+
+
+
+ 
